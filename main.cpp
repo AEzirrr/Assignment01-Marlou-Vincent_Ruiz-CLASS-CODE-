@@ -30,15 +30,7 @@ float z_cam = 0;
 float yaw = 270;
 float pitch = 0;
 
-// Value for object's scale
-float scaleValX = 1;
-float scaleValY = 1;
-float scaleValZ = 1;
-
-// Values of object's rotation
-float thetaX = 0;
-float thetaY = 0;
-float thetaZ = 0;
+float scaleVal = 1.0f;
 
 /////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
@@ -175,8 +167,8 @@ int main(void) {
         "3D/sphere.obj", // 3D model
         "", // texture
         glm::vec3(0, 0, 0), // Spawn pos
-        glm::vec3(thetaX, thetaY, thetaZ), //Rotation
-        glm::vec3(scaleValX, scaleValY, scaleValZ), // Scale
+        glm::vec3(0, 0, 0), //Rotation
+        glm::vec3(scaleVal, scaleVal, scaleVal), // Scale
         shaderProg
     );
 
@@ -185,8 +177,8 @@ int main(void) {
         "3D/sphere.obj", // 3D model
         "", // texture
         glm::vec3(0, 0, 0), // Spawn pos
-        glm::vec3(thetaX, thetaY, thetaZ), //Rotation
-        glm::vec3(scaleValX, scaleValY, scaleValZ), // Scale
+        glm::vec3(0, 0, 0), //Rotation
+        glm::vec3(scaleVal, scaleVal, scaleVal), // Scale
         shaderProg
     );
 
@@ -195,8 +187,8 @@ int main(void) {
         "3D/sphere.obj", // 3D model
         "", // texture
         glm::vec3(0, 0, 0), // Spawn pos
-        glm::vec3(thetaX, thetaY, thetaZ), //Rotation
-        glm::vec3(scaleValX, scaleValY, scaleValZ), // Scale
+        glm::vec3(0, 0, 0), //Rotation
+        glm::vec3(scaleVal, scaleVal, scaleVal), // Scale
         shaderProg
     );
 
@@ -205,8 +197,8 @@ int main(void) {
         "3D/sphere.obj", // 3D model
         "", // texture
         glm::vec3(0, 0, 0), // Spawn pos
-        glm::vec3(thetaX, thetaY, thetaZ), //Rotation
-        glm::vec3(scaleValX, scaleValY, scaleValZ), // Scale
+        glm::vec3(0, 0, 0), //Rotation
+        glm::vec3(scaleVal, scaleVal, scaleVal), // Scale
         shaderProg
     );
 
@@ -244,6 +236,8 @@ int main(void) {
 	//Cross Product
 	//myVectorSample = myVectorX.VectorProduct(myVectorY);
 
+
+    //Add the particles
 	Physics::PhysicsWorld physicsWorld = Physics::PhysicsWorld();
 
 	Physics::P6Particle particle = Physics::P6Particle();
