@@ -39,5 +39,5 @@ void main()
     vec3 specColor = spec* specStr * lightColor;
 
 
-    FragColor = vec4(modelColor.x, modelColor.y, modelColor.z, 1.0);
+    FragColor = vec4(modelColor, 1.0);
 }

@@ -1,10 +1,23 @@
+#include <glm/glm.hpp>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <string>
+#include <iostream>
+#include <cmath>
+#include <unordered_map>
+#include <sstream> // Add this include to fix the issue
+#include <fstream>
+
+
 #include "model.h"
 #include "camera.h"
-#include "Physics/MyVector.h" 
-#include "Physics/P6Particle.h" 
+#include "Physics/MyVector.h"
 #include "Physics/PhysicsWorld.h" 
 #include "RenderParticle.h"
 #include "chrono"
+
+#include "Physics/DragForceGenerator.h"
 
 using namespace std::chrono_literals;
 
@@ -236,40 +249,53 @@ int main(void) {
 	//Cross Product
 	//myVectorSample = myVectorX.VectorProduct(myVectorY);
 
+	std::list<RenderParticle*> renderParticles;
 
     //Add the particles
 	Physics::PhysicsWorld physicsWorld = Physics::PhysicsWorld();
 
 	Physics::P6Particle particle = Physics::P6Particle();
-	particle.position = Physics::MyVector(8, 8, 0);
-	particle.velocity = Physics::MyVector(-1, -1, 0);
-    particle.acceleration = Physics::MyVector(-2, -2, 0);
-	physicsWorld.AddParticle(&particle);
-	sphereObject.color(glm::vec3(0.0f, 1.0f, 0.0f));
+	particle.position = Physics::MyVector(-10, 0, 0);
+	//particle.velocity = Physics::MyVector(10, 0, 0);
+    //particle.acceleration = Physics::MyVector(4, 0, 0);
 
-    Physics::P6Particle particle2 = Physics::P6Particle();
+	particle.mass = 1.0f;
+    particle.AddForce(Physics::MyVector(800.0f, 200.0f, 0.0f));
+	Physics::DragForceGenerator drag = Physics::DragForceGenerator(0.14f, 0.1);
+
+	physicsWorld.forceRegistry.Add(&particle, &drag); // Add the drag force generator to the particle
+
+	particle.damping = 1.0f; 
+	physicsWorld.AddParticle(&particle);
+	RenderParticle rp1 = RenderParticle(&particle, &sphereObject, Physics::MyVector(0.0f, 1.0f, 0.0f));
+	renderParticles.push_back(&rp1);
+
+    /*Physics::P6Particle particle2 = Physics::P6Particle();
     particle2.position = Physics::MyVector(8, -8, 0);
     particle2.velocity = Physics::MyVector(-1, 1, 0);
-    particle2.acceleration = Physics::MyVector(-2, 2, 0);
+    particle2.acceleration = Physics::MyVector(-4, 4, 0);
 	physicsWorld.AddParticle(&particle2);
     sphereObject2.color(glm::vec3(0.0f, 1.0f, 0.0f));
+	RenderParticle rp2 = RenderParticle(&particle2, &sphereObject2, Physics::MyVector(0.0f, 1.0f, 0.0f));
+	renderParticles.push_back(&rp2);
 
     Physics::P6Particle particle3 = Physics::P6Particle();
     particle3.position = Physics::MyVector(-8, 8, 0);
     particle3.velocity = Physics::MyVector(1, -1, 0);
-    particle3.acceleration = Physics::MyVector(2, -2, 0);
+    particle3.acceleration = Physics::MyVector(4, -4, 0);
 	physicsWorld.AddParticle(&particle3);
     sphereObject3.color(glm::vec3(0.0f, 1.0f, 0.0f));
+	RenderParticle rp3 = RenderParticle(&particle3, &sphereObject3, Physics::MyVector(0.0f, 1.0f, 0.0f));
+	renderParticles.push_back(&rp3);
 
     Physics::P6Particle particle4 = Physics::P6Particle();
     particle4.position = Physics::MyVector(-8, -8, 0);
     particle4.velocity = Physics::MyVector(1, 1, 0);
-    particle4.acceleration = Physics::MyVector(2, 2, 0);
+    particle4.acceleration = Physics::MyVector(4, 4, 0);
 	physicsWorld.AddParticle(&particle4);
     sphereObject4.color(glm::vec3(0.0f, 1.0f, 0.0f));
-
-
-
+	RenderParticle rp4 = RenderParticle(&particle4, &sphereObject4, Physics::MyVector(0.0f, 1.0f, 0.0f));
+	renderParticles.push_back(&rp4);*/
 
 
 	//Initializes the clock and variables
@@ -278,6 +304,7 @@ int main(void) {
 	auto prev_time = curr_time;
 	std::chrono::nanoseconds curr_ns(0);
 
+    constexpr float fixedDeltaTime = 0.005f;
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -295,9 +322,6 @@ int main(void) {
 
 			physicsWorld.Update((float)ms.count() / 1000.0f);  
 
-			if (AtCenter(particle)) {
-				particle.Destroy();
-			}
         }
 
         std::cout << "Normal Update" << "\n";
@@ -306,7 +330,7 @@ int main(void) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if (!particle.IsDestroyed()) {
+		/*if (!particle.IsDestroyed()) {
             sphereObject.position = (glm::vec3)particle.position;
             sphereObject.draw();
 		}
@@ -324,7 +348,8 @@ int main(void) {
         if (!particle4.IsDestroyed()) {
             sphereObject4.position = (glm::vec3)particle4.position;
             sphereObject4.draw();
-        }
+        }*/
+
 
         // Calculates the camera's position and front vector
         glm::vec3 cameraPos = glm::vec3(0 + x_cam, 0 + y_cam, 0 + z_cam);
@@ -346,6 +371,10 @@ int main(void) {
         // Pass the projection matrix to the shader
         unsigned int projLoc = glGetUniformLocation(shaderProg, "projection");
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+        for (std::list<RenderParticle*>::iterator i = renderParticles.begin(); i != renderParticles.end(); i++) {
+            (*i)->Draw();
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();

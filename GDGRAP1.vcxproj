@@ -140,18 +140,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Physics\DragForceGenerator.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="Physics\GravityForceGenerator.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="model.cpp" />
+    <ClCompile Include="Physics\ForceGenerator.cpp" />
+    <ClCompile Include="Physics\ForceRegistry.cpp" />
     <ClCompile Include="Physics\MyVector.cpp" />
     <ClCompile Include="Physics\P6Particle.cpp" />
     <ClCompile Include="Physics\PhysicsWorld.cpp" />
+    <ClCompile Include="RenderParticle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="Physics\DragForceGenerator.h" />
+    <ClInclude Include="Physics\GravityForceGenerator.h" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="Physics\ForceGenerator.h" />
+    <ClInclude Include="Physics\ForceRegistry.h" />
     <ClInclude Include="Physics\P6Particle.h" />
     <ClInclude Include="Physics\MyVector.h" />
     <ClInclude Include="Physics\PhysicsWorld.h" />
+    <ClInclude Include="RenderParticle.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="tiny_obj_loader.h" />
   </ItemGroup>
