@@ -139,7 +139,7 @@ int main(void) {
     float windowHeight = 640;
 
     // Window creation
-    window = glfwCreateWindow(windowWidth, windowHeight, "Marlou Vincent Ruiz", NULL, NULL);
+    window = glfwCreateWindow(windowWidth, windowHeight, "Assignment3 Marlou Vincent Ruiz ", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;
