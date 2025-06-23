@@ -12,7 +12,7 @@ namespace Physics{
 		if (mag <= 0.0f) return; // Prevent division by zero
 
 		float dragF = (k1 * mag) + (k2 * mag);
-		MyVector dir = currVelocity.Direction();
+		MyVector dir = currVelocity.Normalize();
 
 		particle->AddForce(dir * -dragF); // Apply drag force in the opposite direction of velocity
 	}

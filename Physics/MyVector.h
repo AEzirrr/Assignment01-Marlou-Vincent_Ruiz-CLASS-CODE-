@@ -12,7 +12,7 @@ namespace Physics {
         explicit operator glm::vec3() const;
 
         float Magnitude() const;
-        MyVector Direction() const;
+        MyVector Normalize() const;
 
         MyVector operator+(const MyVector& rhs) const;
         void operator+=(const MyVector rhs);

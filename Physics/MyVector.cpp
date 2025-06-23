@@ -16,10 +16,14 @@ namespace Physics {
         return std::sqrt(x * x + y * y + z * z);
     }
 
-    MyVector MyVector::Direction() const {
+    MyVector MyVector::Normalize() const {
         float mag = Magnitude();
+        if (mag == 0.0f) {
+            return MyVector(0.0f, 0.0f, 0.0f);
+        }
         return MyVector(x / mag, y / mag, z / mag);
     }
+
 
     MyVector MyVector::operator+(const MyVector& rhs) const {
         return MyVector(x + rhs.x, y + rhs.y, z + rhs.z);

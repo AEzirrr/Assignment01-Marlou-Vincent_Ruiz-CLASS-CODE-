@@ -6,7 +6,7 @@
 #include <iostream>
 #include <cmath>
 #include <unordered_map>
-#include <sstream> // Add this include to fix the issue
+#include <sstream>
 #include <fstream>
 
 
@@ -18,6 +18,13 @@
 #include "chrono"
 
 #include "Physics/DragForceGenerator.h"
+#include "Physics/ParticleContact.h"
+#include "Physics/AnchoredSpring.h"
+#include "Physics/Rod.h"    
+#include "Physics/Bungee.h"
+#include "Physics/Chain.h"
+#include "Physics/ParticleSpring.h"
+
 
 using namespace std::chrono_literals;
 
@@ -100,6 +107,20 @@ float scaleVal = 1.0f;
     if (keyStates[GLFW_KEY_RIGHT]) yaw += camLookSpeed;
 } */
 
+void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& color) {
+    glUseProgram(0);
+    glColor3f(color.x, color.y, color.z);
+    glBegin(GL_LINES);
+    glVertex3f(start.x, start.y, start.z);
+    glVertex3f(end.x, end.y, end.z);
+    glEnd();
+}
+
+glm::vec3 ToGlmVec3(const Physics::MyVector& v) {
+    return glm::vec3(v.x, v.y, v.z);
+}
+
+
 bool AtCenter(const Physics::P6Particle& particle, float epsilon = 0.1f) {
     const auto& pos = particle.position;
     return (std::abs(pos.x) < epsilon) &&
@@ -161,7 +182,7 @@ int main(void) {
     glLinkProgram(shaderProg);
 
     OrthographicCamera orthoCamera(
-        glm::vec3(-30.0f, 25.0f, -30.0f), // Camera position
+        glm::vec3(0.0f, 0.0f, 0.0f), // Camera position
         glm::vec3(0.0f, 0.0f, 0.0f),      // Front direction
         glm::vec3(0.0f, 1.0f, 0.0f),      // Up direction
         0.0f,                             // Yaw
@@ -181,7 +202,7 @@ int main(void) {
         "", // texture
         glm::vec3(0, 0, 0), // Spawn pos
         glm::vec3(0, 0, 0), //Rotation
-        glm::vec3(scaleVal, scaleVal, scaleVal), // Scale
+        glm::vec3(0.5f, 0.5f, 0.5f), // Scale
         shaderProg
     );
 
@@ -195,7 +216,7 @@ int main(void) {
         shaderProg
     );
 
-    // Load sphere
+    /*// Load sphere
     Model3D sphereObject3(
         "3D/sphere.obj", // 3D model
         "", // texture
@@ -213,48 +234,15 @@ int main(void) {
         glm::vec3(0, 0, 0), //Rotation
         glm::vec3(scaleVal, scaleVal, scaleVal), // Scale
         shaderProg
-    );
+    );*/
 
-
-    //Physics::MyVector myVectorX(5.f, 10.0f, 0.0f);
-    //Physics::MyVector myVectorY(5.0f, 10.0f, 0.0f);
-
-    //Physics::MyVector myVectorSample = myVectorX.Direction();
-
-    //std::cout << "Magnitude of MyVectorX: " << myVectorX.Magnitude() << std::endl;
-    //std::cout << "Direction of MyVectorX: " << myVectorX.Direction().x << ", " << myVectorX.Direction().y << ", " << myVectorX.Direction().z << std::endl;
-
-    // + operator
-    //myVectorSample = myVectorX + myVectorY;
-
-    // - operators
-    //myVectorSample = myVectorX - myVectorY;
-
-    // += operator
-    //myVectorX += myVectorY;
-
-    // -= operator
-    //myVectorX -= myVectorY;
-
-
-    //Scalar Multiplication
-    //myVectorSample = myVectorX * -1;
-
-	//Component Product
-	//myVectorSample = myVectorX.ComponentProduct(myVectorY);
-
-    //Dot Product
-    //std::cout << "Dot of X and Y: " << myVectorX.ScalarProduct(myVectorY) << std::endl;
-
-	//Cross Product
-	//myVectorSample = myVectorX.VectorProduct(myVectorY);
 
 	std::list<RenderParticle*> renderParticles;
 
     //Add the particles
 	Physics::PhysicsWorld physicsWorld = Physics::PhysicsWorld();
 
-	Physics::P6Particle particle = Physics::P6Particle();
+	/*Physics::P6Particle particle = Physics::P6Particle();
 	particle.position = Physics::MyVector(-10, 0, 0);
 	//particle.velocity = Physics::MyVector(10, 0, 0);
     //particle.acceleration = Physics::MyVector(4, 0, 0);
@@ -268,7 +256,7 @@ int main(void) {
 	particle.damping = 1.0f; 
 	physicsWorld.AddParticle(&particle);
 	RenderParticle rp1 = RenderParticle(&particle, &sphereObject, Physics::MyVector(0.0f, 1.0f, 0.0f));
-	renderParticles.push_back(&rp1);
+	renderParticles.push_back(&rp1);*/
 
     /*Physics::P6Particle particle2 = Physics::P6Particle();
     particle2.position = Physics::MyVector(8, -8, 0);
@@ -297,6 +285,68 @@ int main(void) {
 	RenderParticle rp4 = RenderParticle(&particle4, &sphereObject4, Physics::MyVector(0.0f, 1.0f, 0.0f));
 	renderParticles.push_back(&rp4);*/
 
+	Physics::P6Particle p1 = Physics::P6Particle();
+	p1.position = Physics::MyVector(-2, 0, 0);
+	p1.mass = 1.0f;
+	physicsWorld.AddParticle(&p1);
+    RenderParticle rp1 = RenderParticle(&p1, &sphereObject, Physics::MyVector(0.0f, 0.0f, 1.0f));
+    renderParticles.push_back(&rp1);
+    
+    Physics::P6Particle p2 = Physics::P6Particle();
+	p2.position = Physics::MyVector(2.0f, 0, 0);
+	p2.mass = 1.0f;
+	physicsWorld.AddParticle(&p2);
+	RenderParticle rp2 = RenderParticle(&p2, &sphereObject2, Physics::MyVector(1.0f, 0.0f, 0.0f));
+	renderParticles.push_back(&rp2);
+
+    //I set the bungee rest length to 3.0f just so they are on the same level when stopping
+	//because due to mass, the particle is suspended and stretches the bungee a lot lower
+    //////////Bungee//////////
+    Physics::Bungee aBungee = Physics::Bungee(Physics::MyVector(-2, 0, 0), 5.0f, 3.0f);
+	aBungee.damping = 0.1f; // Set damping for the bungee
+    physicsWorld.forceRegistry.Add(&p1, &aBungee);
+    //////////Bungee TEST//////////
+
+    //////////CHAIN//////////
+    Physics::Chain aChain = Physics::Chain(Physics::MyVector(2, 0, 0), 5.0f, 5.0f);
+    physicsWorld.forceRegistry.Add(&p2, &aChain);
+    //////////CHAIN//////////
+
+   
+
+    //////////ANCHORED SPRING TEST//////////
+    /*Physics::AnchoredSpring aSpring = Physics::AnchoredSpring(Physics::MyVector(0, 0, 0), 5.0f, 0.5f);
+    physicsWorld.forceRegistry.Add(&p1, &aSpring);
+
+    p1.AddForce(Physics::MyVector(0.6f, 0.3f, 0.0f) * 1000); // Add an initial force to the particle*/
+
+    /*//PARTICLE SPRING TEST
+	Physics::ParticleSpring pSpring = Physics::ParticleSpring(&p1, 5.0f, 1.0f);
+	physicsWorld.forceRegistry.Add(&p2, &pSpring);
+
+    Physics::ParticleSpring pSpring2 = Physics::ParticleSpring(&p2, 5.0f, 1.0f);
+    physicsWorld.forceRegistry.Add(&p1, &pSpring2);
+
+	p1.AddForce(Physics::MyVector(0.6f, 0.3f, 0.0f) * 1000); // Add an initial force to the particle*/
+    //////////ANCHORED SPRING TEST//////////
+	
+
+	/*Physics::ParticleContact contact = Physics::ParticleContact();
+	contact.particles[0] = &p1;
+	contact.particles[1] = &p2;
+
+	contact.contactNormal = p1.position - p2.position;
+	contact.contactNormal = contact.contactNormal.Normalize(); // Normalize the contact normal vector
+	contact.restitution = 0.0f; // Set restitution coefficient*/
+
+
+	//p1.velocity = Physics::MyVector(0.2, 0, 0);
+    //p2.velocity = Physics::MyVector(-0.1, 0, 0);
+
+    //Physics::MyVector dir = p1.position - p2.position;
+	//dir.Normalize();
+
+	//physicsWorld.addContact(&p1, &p2, 1.0f, dir); // Add the contact to the physics world
 
 	//Initializes the clock and variables
 	using clock = std::chrono::high_resolution_clock;
@@ -306,6 +356,10 @@ int main(void) {
 
     constexpr float fixedDeltaTime = 0.005f;
 
+    float elapsedTime = 0.0f;
+    bool forceApplied = false;
+
+	std::cout << "Wait 5 secs to see chain movement using force" << std::endl;
     while (!glfwWindowShouldClose(window)) {
 
 		curr_time = clock::now();
@@ -313,18 +367,29 @@ int main(void) {
 		prev_time = curr_time;
 
 		curr_ns += dur;
+
+        float frameTime = std::chrono::duration<float>(dur).count();
+        elapsedTime += frameTime;
+
         if (curr_ns >= timeStep) {
 			auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(curr_ns);
 			//std::cout << "MS: " << (float)ms.count() << "\n";
 
             curr_ns -= timeStep;
-			std::cout << "P6Update"<< "\n";
+			//std::cout << "P6Update"<< "\n";
 
 			physicsWorld.Update((float)ms.count() / 1000.0f);  
 
         }
 
-        std::cout << "Normal Update" << "\n";
+        // Apply force to the chain after 5 seconds (to simulate chain movement)
+        if (!forceApplied && elapsedTime >= 5.0f) {
+            p2.AddForce(Physics::MyVector(Physics::MyVector(0.25f, 0.25f, 0.0f) * 1000));
+            forceApplied = true;
+            std::cout << "Force applied to chain!" << std::endl;
+        }
+
+        //std::cout << "Normal Update" << "\n";
 
         //ProcessInput(); // Key inputs
 
@@ -350,7 +415,6 @@ int main(void) {
             sphereObject4.draw();
         }*/
 
-
         // Calculates the camera's position and front vector
         glm::vec3 cameraPos = glm::vec3(0 + x_cam, 0 + y_cam, 0 + z_cam);
         glm::vec3 front;
@@ -375,6 +439,14 @@ int main(void) {
         for (std::list<RenderParticle*>::iterator i = renderParticles.begin(); i != renderParticles.end(); i++) {
             (*i)->Draw();
         }
+
+        // draw the bungee and chain lines
+        {
+            glm::vec3 lineColor(1.0f, 1.0f, 1.0f);
+            DrawLine(sphereObject.position * 0.1f, ToGlmVec3(aBungee.anchorPoint) * 0.1f, lineColor);
+            DrawLine(sphereObject2.position * 0.1f, ToGlmVec3(aChain.anchorPoint) * 0.1f, lineColor);
+        }
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();

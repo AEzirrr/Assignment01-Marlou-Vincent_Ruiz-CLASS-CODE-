@@ -23,6 +23,12 @@ namespace Physics {
 		{
 			(*p)->Update(time);
 		}
+
+		GenerateContact();
+
+		if (contacts.size() > 0) {
+			contactResolver.ResolveContacts(contacts, time);
+		}
 	}
 
 	void PhysicsWorld::UpdateParticleList() {
@@ -32,5 +38,32 @@ namespace Physics {
 				return p->IsDestroyed();
 			}
 		);
+	}
+
+	void PhysicsWorld::addContact(P6Particle* p1, P6Particle* p2, float restitution, MyVector contactNormal) {
+		ParticleContact *toAdd = new ParticleContact();
+
+		toAdd->particles[0] = p1;
+		toAdd->particles[1] = p2;
+		toAdd->restitution = restitution;
+		toAdd->contactNormal = contactNormal; 
+		toAdd->depth = (p1->position - p2->position).Magnitude(); // Calculate the depth of penetration
+		contacts.push_back(toAdd);
+	}
+
+	void PhysicsWorld::GenerateContact() {
+		
+		contacts.clear();
+
+		for (std::list<ParticleLink*>::iterator i = links.begin();
+			i != links.end();
+			i++) {
+
+			ParticleContact* contact = (*i)->GetContact();
+
+			if (contact != nullptr) {
+				contacts.push_back(contact);
+			}
+		}
 	}
 }
